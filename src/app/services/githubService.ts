@@ -14,7 +14,7 @@ interface GitHubUser {
   "organizations_url": string;
   "repos_url": string;
   "events_url": string;
-  "received_events_url": string; 
+  "received_events_url": string;
   "type": string;
   "site_admin": boolean;
   "name": string | null;
@@ -149,36 +149,43 @@ const GITHUB_API_BASE_URL = process.env.NEXT_PUBLIC_GITHUB_API_BASE_URL || 'http
 
 
 //@throws Erro se a requisição falhar ou o utilizador não for encontrado.
-export async function getGitHubUser(username: string): Promise<GitHubUser>{
-    const headers: HeadersInit = {
-        'Accept': 'application/vnd.github.v3+json',
-    };
+export async function getGitHubUser(username: string): Promise<GitHubUser> {
+  const headers: HeadersInit = {
+    'Accept': 'application/vnd.github.v3+json',
+  };
 
-const response = await fetch(`${GITHUB_API_BASE_URL}/users/${username}`, {headers});
+  const response = await fetch(`${GITHUB_API_BASE_URL}/users/${username}`, { headers });
 
-if(!response.ok) {
-    if (response.status === 404){
-        throw new Error(`Usuário '${username}' não encontrado`);
+  if (!response.ok) {
+    if (response.status === 404) {
+      throw new Error(`Usuário '${username}' não encontrado`);
     }
     throw new Error(`Erro ao procurar usuário: ${response.status} ${response.statusText}`);
-}
+  }
 
-return response.json();
+  return response.json();
 }
 
 
 export async function getGitHubUserRepos(username: string, limit: number = 5): Promise<GitHubRepo[]> {
-    const headers: HeadersInit = {
-        'Accept': 'application/vnd.github.v3+json',
-        };
+  const headers: HeadersInit = {
+    'Accept': 'application/vnd.github.v3+json',
+  };
 
-        const response = await fetch(`${GITHUB_API_BASE_URL}/users/${username}/repos?sort=updated&per_page=${limit}`, {headers});
+  const response = await fetch(`${GITHUB_API_BASE_URL}/users/${username}/repos?sort=updated&per_page=${limit}`, { headers });
 
-        if (!response.ok){
-            throw new Error(`Erro ao procurar repositórios: ${response.status} ${response.statusText}`);
-        }
-    
-        return response.json();
+  if (!response.ok) {
+    throw new Error(`Erro ao procurar repositórios: ${response.status} ${response.statusText}`);
+  }
+
+  return response.json();
 }
 
- 
+export async function getGitHubStarredRepos(username: string): Promise<GitHubRepo[]> {
+  const headers: HeadersInit = { 'Accept': 'application/vnd.github.v3+json' };
+  const response = await fetch(`${GITHUB_API_BASE_URL}/users/${username}/starred`, { headers });
+  if (!response.ok) {
+    throw new Error(`Erro ao procurar os favoritos: ${response.status} ${response.statusText}`);
+  }
+  return response.json();
+}
